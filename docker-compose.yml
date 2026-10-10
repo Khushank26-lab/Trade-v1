@@ -1,0 +1,21 @@
+services:
+  web:
+    build: .
+    env_file: .env
+    volumes: ["./data:/srv/data"]
+    restart: unless-stopped
+  worker:
+    build: .
+    command: ["python","-m","app.worker"]
+    env_file: .env
+    volumes: ["./data:/srv/data"]
+    restart: unless-stopped
+  caddy:
+    image: caddy:2
+    ports: ["80:80","443:443"]
+    environment: ["DOMAIN=${DOMAIN}"]
+    volumes: ["./Caddyfile:/etc/caddy/Caddyfile:ro","caddy_data:/data"]
+    depends_on: [web]
+    restart: unless-stopped
+volumes:
+  caddy_data:
